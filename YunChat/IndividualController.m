@@ -99,6 +99,7 @@
         MyNavigationController *nav = [[MyNavigationController alloc] initWithRootViewController:Registered];
         AppDelegate *apd = (AppDelegate*)[[UIApplication sharedApplication]delegate];
         apd.window.rootViewController = nav;
+        [[NSUserDefaults standardUserDefaults] setObject:nil forKey:@"ISLOGIN"];
     }
 }
 
