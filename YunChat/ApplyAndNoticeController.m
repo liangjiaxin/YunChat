@@ -23,7 +23,10 @@
     
     self.title = @"申请与通知";
     
-    [self.dataArry addObjectsFromArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"addFriendsApply"]];
+    NSArray *arry = [[NSUserDefaults standardUserDefaults] objectForKey:@"AddFriendsApply"];
+    if(arry.count > 0){
+        [self.dataArry addObjectsFromArray:arry];
+    }
     
     _tableView.delegate = self;
     _tableView.dataSource = self;

@@ -52,7 +52,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.addFriendsApply addObjectsFromArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"addFriendsApply"]];
+    NSArray *arry = [[NSUserDefaults standardUserDefaults] objectForKey:@"AddFriendsApply"];
+    if(arry.count > 0){
+        [self.addFriendsApply addObjectsFromArray:arry];
+    }
     
     [self.stateDict setObject:@"0" forKey:@"1"];
     [self.stateDict setObject:@"0" forKey:@"2"];
@@ -317,7 +320,11 @@
 
 //接受好友请求成功的回调
 - (void)didAcceptBuddySucceed:(NSString *)username{
-    [self.addFriendsApply addObjectsFromArray:[[NSUserDefaults standardUserDefaults] objectForKey:@"addFriendsApply"]];
+    NSArray *arry = [[NSUserDefaults standardUserDefaults] objectForKey:@"AddFriendsApply"];
+    if(arry.count > 0){
+        [self.addFriendsApply removeAllObjects];
+        [self.addFriendsApply addObjectsFromArray:arry];
+    }
     [self reloadDataNews];
     [_tableView reloadData];
 }
@@ -350,9 +357,14 @@
 
 //接收到好友请求通知
 - (void)didReceiveBuddyRequest:(NSString *)username message:(NSString *)message{
-    NSDictionary *dict = @{@"username":username,@"message":message};
+    NSDictionary *dict;
+    if(message){
+        dict = @{@"username":username,@"message":message};
+    }else{
+        dict = @{@"username":username};
+    }
     [self.addFriendsApply addObject:dict];
-    [[NSUserDefaults standardUserDefaults] setObject:self.addFriendsApply forKey:@"addFriendsApply"];
+    [[NSUserDefaults standardUserDefaults] setObject:_addFriendsApply forKey:@"AddFriendsApply"];
     [_tableView reloadData];
 }
 
@@ -369,11 +381,10 @@
     
     //黑名单列表
     NSArray *blockedList = [[EaseMob sharedInstance].chatManager fetchBlockedList:nil];
-    [_blackListArry addObjectsFromArray:blockedList];
     
     //群组列表
     NSArray *roomsList = [[EaseMob sharedInstance].chatManager groupList];
-    [self.groupArry addObjectsFromArray:roomsList];
+    [_groupArry addObjectsFromArray:roomsList];
     
     //移除好友列表中加入了黑名单的人
     for (int i=0; i<blockedList.count; i++) {
@@ -381,6 +392,9 @@
             NSString *buddy1 = blockedList[i];
             EMBuddy *buddy2 = _friendsArry[y];
             if([buddy1 isEqual:buddy2.username]){
+                //将黑名单的人的资料添加到黑名单数组
+                [_blackListArry addObject:buddy2];
+                //移除好友数组中加入了黑名单的人
                 [_friendsArry removeObjectAtIndex:y];
                 break;
             }
